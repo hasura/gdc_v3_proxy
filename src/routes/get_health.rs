@@ -8,8 +8,8 @@ use crate::{
 
 #[axum_macros::debug_handler]
 pub async fn get_health(
-    SourceName(source_name): SourceName,
-    SourceConfig(config): SourceConfig,
+    source_name: Option<SourceName>,
+    config: Option<SourceConfig>,
 ) -> StatusCode {
     // todo: if source_name and config provided, check if that specific source is healthy
     StatusCode::NO_CONTENT
