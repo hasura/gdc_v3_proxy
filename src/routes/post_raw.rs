@@ -1,6 +1,6 @@
 use std::{str::FromStr, vec};
 
-use axum::{http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode, Json};
 use axum_extra::extract::WithRejection;
 use indexmap::IndexMap;
 use ndc_client::models;
@@ -9,12 +9,14 @@ use crate::{
     api::{raw_request::RawRequest, raw_response::RawResponse},
     config::{SourceConfig, SourceName},
     error::ServerError,
+    ServerState,
 };
 
-#[axum_macros::debug_handler]
+#[axum_macros::debug_handler(state = ServerState)]
 pub async fn post_raw(
     SourceName(_source_name): SourceName,
     SourceConfig(config): SourceConfig,
+    State(state): State<ServerState>,
     WithRejection(Json(request), _): WithRejection<Json<RawRequest>, ServerError>,
 ) -> StatusCode {
     StatusCode::NOT_IMPLEMENTED

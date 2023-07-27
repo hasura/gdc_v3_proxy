@@ -16,7 +16,7 @@ use crate::{
     },
 };
 
-#[axum_macros::debug_handler]
+#[axum_macros::debug_handler(state = ServerState)]
 pub async fn get_capabilities(
     State(state): State<ServerState>,
 ) -> Result<Json<CapabilitiesResponse>, ServerError> {

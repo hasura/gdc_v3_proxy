@@ -1,4 +1,4 @@
-use axum::{http::StatusCode, Json, TypedHeader};
+use axum::{extract::State, http::StatusCode, Json, TypedHeader};
 
 use axum_extra::extract::WithRejection;
 use ndc_client::models;
@@ -8,14 +8,16 @@ use crate::{
     api::schema_response::{ColumnInfo, SchemaResponse, TableInfo},
     config::{SourceConfig, SourceName},
     error::ServerError,
+    ServerState,
 };
 
 #[axum_macros::debug_handler]
 pub async fn get_schema(
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
+    State(state): State<ServerState>,
 ) -> Result<Json<SchemaResponse>, ServerError> {
-    let url = format!("{}/schema", config.base_url);
+    let url = format!("{}/schema", state.base_url);
     let client = reqwest::Client::new();
     let request = client.get(&url).send().await?.text().await?;
     let response = serde_json::from_str(&request)?;

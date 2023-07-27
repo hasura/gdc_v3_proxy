@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{Json, extract::State};
 use axum_extra::extract::WithRejection;
 use ndc_client::models;
 
@@ -6,14 +6,16 @@ use crate::{
     api::{explain_response::ExplainResponse, query_request::QueryRequest},
     config::{SourceConfig, SourceName},
     error::ServerError,
+    ServerState,
 };
 
 use super::post_query::map_request;
 
-#[axum_macros::debug_handler]
+#[axum_macros::debug_handler(state=ServerState)]
 pub async fn post_explain(
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
+    State(state): State<ServerState>,
     WithRejection(Json(request), _): WithRejection<Json<QueryRequest>, ServerError>,
 ) -> Result<Json<ExplainResponse>, ServerError> {
     let url = format!("{}/explain", config.base_url);

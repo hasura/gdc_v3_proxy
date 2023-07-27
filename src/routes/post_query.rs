@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use axum::{http::response, Json};
+use axum::{extract::State, http::response, Json};
 use axum_extra::extract::WithRejection;
 use indexmap::IndexMap;
 use ndc_client::models;
@@ -16,15 +16,17 @@ use crate::{
     },
     config::{SourceConfig, SourceName},
     error::ServerError,
+    ServerState,
 };
 
-#[axum_macros::debug_handler]
+#[axum_macros::debug_handler(state = ServerState)]
 pub async fn post_query(
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
+    State(state): State<ServerState>,
     WithRejection(Json(request), _): WithRejection<Json<QueryRequest>, ServerError>,
 ) -> Result<Json<QueryResponse>, ServerError> {
-    let url = format!("{}/query", config.base_url);
+    let url = format!("{}/query", state.base_url);
 
     let client = reqwest::Client::new();
 
