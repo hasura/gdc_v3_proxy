@@ -1,5 +1,4 @@
 FROM rust:1.69.0 as builder
-ARG PACKAGE
 WORKDIR /tmp
 COPY Cargo.toml .
 COPY Cargo.lock .
