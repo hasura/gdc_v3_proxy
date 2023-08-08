@@ -1,24 +1,23 @@
-use axum::{Json, extract::State};
+use axum::{extract::State, Json};
 use axum_extra::extract::WithRejection;
 use ndc_client::models;
 
 use crate::{
     api::{explain_response::ExplainResponse, query_request::QueryRequest},
-    config::{SourceConfig, SourceName},
+    config::{ProxyTarget, SourceConfig, SourceName},
     error::ServerError,
-    ServerState,
 };
 
 use super::post_query::map_request;
 
-#[axum_macros::debug_handler(state=ServerState)]
+#[axum_macros::debug_handler]
 pub async fn post_explain(
+    ProxyTarget(base_url): ProxyTarget,
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
-    State(state): State<ServerState>,
     WithRejection(Json(request), _): WithRejection<Json<QueryRequest>, ServerError>,
 ) -> Result<Json<ExplainResponse>, ServerError> {
-    let url = format!("{}/explain", config.base_url);
+    let url = format!("{}/explain", base_url);
 
     let client = reqwest::Client::new();
 

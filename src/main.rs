@@ -14,24 +14,13 @@ use clap::Parser;
 
 #[derive(Parser)]
 struct ServerOptions {
-    #[arg(long, env)]
-    base_url: String,
     #[arg(long, env, default_value_t = 8080)]
     port: u16,
-}
-
-#[derive(Debug, Clone)]
-pub struct ServerState {
-    base_url: String,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let options = ServerOptions::parse();
-
-    let state = ServerState {
-        base_url: options.base_url,
-    };
 
     let router = Router::new()
         .route("/capabilities", get(get_capabilities))
@@ -40,8 +29,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/mutation", post(post_mutation))
         .route("/raw", post(post_raw))
         .route("/explain", post(post_explain))
-        .route("/health", get(get_health))
-        .with_state(state);
+        .route("/health", get(get_health));
 
     let adresss = format!("0.0.0.0:{}", options.port).parse()?;
 

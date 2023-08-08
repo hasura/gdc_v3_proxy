@@ -4,8 +4,8 @@ use ndc_client::models;
 use schemars::schema_for;
 
 use crate::{
+    config::ProxyTarget,
     error::ServerError,
-    ServerState,
     {
         api::capabilities_response::{
             Capabilities, CapabilitiesResponse, ColumnNullability, ComparisonCapabilities,
@@ -16,16 +16,16 @@ use crate::{
     },
 };
 
-#[axum_macros::debug_handler(state = ServerState)]
+#[axum_macros::debug_handler]
 pub async fn get_capabilities(
-    State(state): State<ServerState>,
+    ProxyTarget(base_url): ProxyTarget,
 ) -> Result<Json<CapabilitiesResponse>, ServerError> {
-    let url = format!("{}/capabilities", state.base_url);
+    let url = format!("{}/capabilities", base_url);
     let client = reqwest::Client::new();
     let request = client.get(&url).send().await?.text().await?;
     let capabilities_response = serde_json::from_str(&request)?;
 
-    let url = format!("{}/schema", state.base_url);
+    let url = format!("{}/schema", base_url);
     let client = reqwest::Client::new();
     let request = client.get(&url).send().await?.text().await?;
     let schema_response = serde_json::from_str(&request)?;

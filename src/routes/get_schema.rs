@@ -6,18 +6,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     api::schema_response::{ColumnInfo, SchemaResponse, TableInfo},
-    config::{SourceConfig, SourceName},
+    config::{ProxyTarget, SourceConfig, SourceName},
     error::ServerError,
-    ServerState,
 };
 
 #[axum_macros::debug_handler]
 pub async fn get_schema(
+    ProxyTarget(base_url): ProxyTarget,
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
-    State(state): State<ServerState>,
 ) -> Result<Json<SchemaResponse>, ServerError> {
-    let url = format!("{}/schema", state.base_url);
+    let url = format!("{}/schema", base_url);
     let client = reqwest::Client::new();
     let request = client.get(&url).send().await?.text().await?;
     let response = serde_json::from_str(&request)?;

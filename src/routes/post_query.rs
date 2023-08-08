@@ -14,19 +14,18 @@ use crate::{
         },
         query_response::{QueryResponse, RowFieldValue},
     },
-    config::{SourceConfig, SourceName},
+    config::{ProxyTarget, SourceConfig, SourceName},
     error::ServerError,
-    ServerState,
 };
 
-#[axum_macros::debug_handler(state = ServerState)]
+#[axum_macros::debug_handler]
 pub async fn post_query(
+    ProxyTarget(base_url): ProxyTarget,
     SourceName(source_name): SourceName,
     SourceConfig(config): SourceConfig,
-    State(state): State<ServerState>,
     WithRejection(Json(request), _): WithRejection<Json<QueryRequest>, ServerError>,
 ) -> Result<Json<QueryResponse>, ServerError> {
-    let url = format!("{}/query", state.base_url);
+    let url = format!("{}/query", base_url);
 
     let client = reqwest::Client::new();
 
